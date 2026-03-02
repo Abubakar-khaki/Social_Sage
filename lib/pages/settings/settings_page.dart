@@ -153,10 +153,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             // PLATFORMS SECTION
             // ═══════════════════════════════
             const _SectionTitle(icon: Icons.apps_rounded, title: 'Connected Platforms'),
-            ...AppConstants.platforms.map((platform) => _PlatformAccordion(
+            ...AppConstants.platforms.map((platform) {
+              final isConnected = platforms.any((acc) => acc.platformName == platform.id);
+              return _PlatformAccordion(
                   platform: platform,
                   isExpanded: _expandedPlatforms.contains(platform.id),
-                  isConnected: platforms.contains(platform.id),
+                  isConnected: isConnected,
                   onToggleExpand: () {
                     setState(() {
                       if (_expandedPlatforms.contains(platform.id)) {
@@ -168,13 +170,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   },
                   onToggleConnect: () {
                     final notifier = ref.read(platformAccountsProvider.notifier);
-                    if (platforms.contains(platform.id)) {
-                      notifier.disconnect(platform.id);
+                    if (isConnected) {
+                      final account = platforms.firstWhere((acc) => acc.platformName == platform.id);
+                      notifier.disconnect(account.id);
                     } else {
                       notifier.connect(platform.id);
                     }
                   },
-                )),
+                );
+            }),
 
             const SizedBox(height: 20),
 

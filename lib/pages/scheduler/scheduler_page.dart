@@ -106,10 +106,12 @@ class _SchedulerPageState extends ConsumerState<SchedulerPage> {
                 ),
               )
             else
-              ...scheduledPosts.map((post) => _ScheduledPostCard(
-                    post: post,
-                    onDelete: () => ref.read(scheduledPostsProvider.notifier).remove(post.id),
-                  )),
+              ...scheduledPosts
+                  .where((p) => _isSameDay(p.scheduledTime, _selectedDate))
+                  .map((post) => _ScheduledPostCard(
+                        post: post,
+                        onDelete: () => ref.read(scheduledPostsProvider.notifier).remove(post.id),
+                      )),
 
             const SizedBox(height: 100),
           ],

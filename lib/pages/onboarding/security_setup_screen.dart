@@ -48,6 +48,7 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
     await ref.read(authProvider.notifier).completeOnboarding(
       widget.username,
       _selectedMethod,
+      password: _passwordController.text,
     );
 
     if (mounted) {
@@ -175,7 +176,7 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
               NeonButton(
                 label: _isLoading ? 'Setting up...' : 'Get Started',
                 isLoading: _isLoading,
-                onPressed: _isLoading ? null : _onGetStarted,
+                onPressed: _isLoading ? null : () => _onGetStarted(),
               ),
               const SizedBox(height: 20),
             ],

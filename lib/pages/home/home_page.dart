@@ -28,6 +28,14 @@ class HomePage extends ConsumerWidget {
         })
         .length;
 
+    if (auth.isLoading || posts.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.neonCyan),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -140,7 +148,7 @@ class HomePage extends ConsumerWidget {
                     children: AppConstants.platforms.map((platform) {
                       return PlatformIcon(
                         platform: platform,
-                        isConnected: platforms.contains(platform.id),
+                        isConnected: platforms.any((acc) => acc.platformName == platform.id),
                         onTap: () => context.go('/settings'),
                       );
                     }).toList(),

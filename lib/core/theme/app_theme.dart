@@ -237,7 +237,7 @@ class AppTheme {
       ),
 
       // ── Tab Bar ──
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: AppColors.neonCyan,
         unselectedLabelColor: AppColors.textTertiary,
         indicatorColor: AppColors.neonCyan,
@@ -254,7 +254,7 @@ class AppTheme {
       ),
 
       // ── Dialog ──
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         titleTextStyle: const TextStyle(

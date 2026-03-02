@@ -4,7 +4,7 @@ import '../core/theme/app_colors.dart';
 /// Neon-styled button with glow effect
 class NeonButton extends StatefulWidget {
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isPrimary;
   final IconData? icon;
   final bool isLoading;

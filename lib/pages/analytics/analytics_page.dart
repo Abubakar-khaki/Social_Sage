@@ -1,15 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/shared_widgets.dart';
+import '../../providers/app_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/models/models.dart';
 
 /// Page 4: Analytics Dashboard
-class AnalyticsPage extends StatelessWidget {
+class AnalyticsPage extends ConsumerWidget {
   const AnalyticsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final analytics = ref.watch(analyticsProvider);
+    
+    // Aggregation
+    final totalViews = analytics.fold<int>(0, (sum, item) => sum + item.views);
+    final totalLikes = analytics.fold<int>(0, (sum, item) => sum + item.likes);
+    final totalComments = analytics.fold<int>(0, (sum, item) => sum + item.comments);
+    final totalShares = analytics.fold<int>(0, (sum, item) => sum + item.shares);
+    
+    final maxViews = analytics.isEmpty ? 1 : analytics.map((e) => e.views).reduce((a, b) => a > b ? a : b);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -18,6 +27,10 @@ class AnalyticsPage extends StatelessWidget {
         ),
         title: const Text('Analytics'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.neonCyan),
+            onPressed: () => ref.read(analyticsProvider.notifier).refresh(),
+          ),
           Container(
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -44,31 +57,31 @@ class AnalyticsPage extends StatelessWidget {
           children: [
             // ── Summary Cards ──
             Row(
-              children: const [
+              children: [
                 _StatCard(
                   label: 'Total Views',
-                  value: '2,450',
+                  value: totalViews.toString(),
                   icon: Icons.visibility_rounded,
                   color: AppColors.neonCyan,
-                  change: '+12%',
+                  change: '+15%',
                   isPositive: true,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 _StatCard(
                   label: 'Total Likes',
-                  value: '340',
+                  value: totalLikes.toString(),
                   icon: Icons.favorite_rounded,
                   color: AppColors.neonPink,
-                  change: '+8%',
+                  change: '+5%',
                   isPositive: true,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 _StatCard(
                   label: 'Comments',
-                  value: '85',
+                  value: totalComments.toString(),
                   icon: Icons.chat_bubble_outline_rounded,
                   color: AppColors.neonBlue,
-                  change: '+3%',
+                  change: '+2%',
                   isPositive: true,
                 ),
               ],
@@ -127,46 +140,19 @@ class AnalyticsPage extends StatelessWidget {
 
             // ── Platform Breakdown ──
             const SectionHeader(title: 'Platform Breakdown'),
-            _PlatformBreakdownItem(
-              name: 'Instagram',
-              icon: Icons.camera_alt_rounded,
-              color: AppColors.instagram,
-              views: 800,
-              likes: 150,
-              maxViews: 800,
-            ),
-            _PlatformBreakdownItem(
-              name: 'Twitter / X',
-              icon: Icons.tag_rounded,
-              color: AppColors.twitter,
-              views: 600,
-              likes: 120,
-              maxViews: 800,
-            ),
-            _PlatformBreakdownItem(
-              name: 'TikTok',
-              icon: Icons.music_note_rounded,
-              color: const Color(0xFFEE1D52),
-              views: 500,
-              likes: 60,
-              maxViews: 800,
-            ),
-            _PlatformBreakdownItem(
-              name: 'LinkedIn',
-              icon: Icons.work_rounded,
-              color: AppColors.linkedin,
-              views: 400,
-              likes: 10,
-              maxViews: 800,
-            ),
-            _PlatformBreakdownItem(
-              name: 'Facebook',
-              icon: Icons.facebook_rounded,
-              color: AppColors.facebook,
-              views: 150,
-              likes: 0,
-              maxViews: 800,
-            ),
+            if (analytics.isEmpty)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('No platform data connected', style: TextStyle(color: AppColors.textTertiary)),
+              )),
+            ...analytics.map((data) => _PlatformBreakdownItem(
+              name: data.platform[0].toUpperCase() + data.platform.substring(1),
+              icon: _getIconForPlatform(data.platform),
+              color: _getColorForPlatform(data.platform),
+              views: data.views,
+              likes: data.likes,
+              maxViews: maxViews,
+            )),
 
             const SizedBox(height: 24),
 
@@ -420,5 +406,28 @@ class _ChartBar extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+IconData _getIconForPlatform(String platform) {
+  switch (platform.toLowerCase()) {
+    case 'facebook': return Icons.facebook_rounded;
+    case 'twitter': return Icons.tag_rounded;
+    case 'instagram': return Icons.camera_alt_rounded;
+    case 'linkedin': return Icons.work_rounded;
+    case 'tiktok': return Icons.music_note_rounded;
+    case 'youtube': return Icons.play_circle_fill_rounded;
+    default: return Icons.share_rounded;
+  }
+}
+
+Color _getColorForPlatform(String platform) {
+  switch (platform.toLowerCase()) {
+    case 'facebook': return AppColors.facebook;
+    case 'twitter': return AppColors.twitter;
+    case 'instagram': return AppColors.instagram;
+    case 'linkedin': return AppColors.linkedin;
+    case 'tiktok': return const Color(0xFFEE1D52);
+    case 'youtube': return Colors.red;
+    default: return AppColors.neonCyan;
   }
 }

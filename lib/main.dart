@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/theme/app_theme.dart';
-import 'core/router/app_router.dart';
-import 'data/services/storage_service.dart';
+import 'data/services/notification_service.dart';
+import 'data/services/scheduler_worker.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.init();
+  await NotificationService.instance.initialize();
+  await SchedulerWorker.instance.initialize();
+  await SchedulerWorker.instance.scheduleBackgroundCheck();
   runApp(const ProviderScope(child: SocialSageApp()));
 }
 

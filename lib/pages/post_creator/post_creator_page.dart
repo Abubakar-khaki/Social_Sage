@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_constants.dart';
 import '../../data/models/models.dart';
+import '../../data/services/ai_service.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/neon_button.dart';
@@ -26,15 +27,24 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
   bool _addMusic = false;
   String? _mediaPath;
   String? _mediaType; // 'photo' | 'video'
+  String? _mediaId;   // PERSISTENT ID
   final List<String> _selectedPlatforms = [];
   final _uuid = const Uuid();
 
   @override
   void initState() {
     super.initState();
-    for (var platform in AppConstants.platforms) {
-      _selectedPlatforms.add(platform.id);
-    }
+    // Only pre-select platforms that are actually connected
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final connectedAccounts = ref.read(platformAccountsProvider);
+      setState(() {
+        for (var acc in connectedAccounts) {
+          if (!_selectedPlatforms.contains(acc.platformName)) {
+            _selectedPlatforms.add(acc.platformName);
+          }
+        }
+      });
+    });
   }
 
   @override
@@ -51,10 +61,19 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
         ? await picker.pickVideo(source: source)
         : await picker.pickImage(source: source);
     if (file != null) {
-      setState(() {
-        _mediaPath = file.path;
-        _mediaType = video ? 'video' : 'photo';
-      });
+      final mediaNotifier = ref.read(mediaLibraryProvider.notifier);
+      final type = video ? 'video' : 'photo';
+      
+      // Permanently save to app documents
+      final savedItem = await mediaNotifier.addFromPicker(file.path, type);
+      
+      if (savedItem != null) {
+        setState(() {
+          _mediaPath = savedItem.filePath;
+          _mediaType = type;
+          _mediaId = savedItem.id;
+        });
+      }
     }
   }
 
@@ -102,25 +121,6 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
   }
 
   void _showAiSuggestions(String field) {
-    final suggestions = {
-      'title': [
-        '🚀 Breaking: The Future of Social Media in 2026',
-        '💡 5 Things No One Tells You About Going Viral',
-        '🔥 Why I Left My 9-5 to Build My Brand',
-        '🌟 The Mindset Shift That Changed Everything',
-      ],
-      'description': [
-        'In this post, I\'m sharing the exact framework I used to grow from 0 to 10K followers in 90 days. Save this for later! 🔖',
-        'Most people overthink content creation. Here\'s the simple system I swear by — thread below 👇',
-        'The algorithm doesn\'t care about your follower count. It cares about engagement. Here\'s how to hack it 🧠',
-      ],
-      'hashtags': [
-        '#socialmedia #contentcreator #viral #growthhacking #digitalmarketing',
-        '#entrepreneur #mindset #success #motivation #business',
-        '#tutorial #howto #tips #lifehacks #productivity',
-      ],
-    };
-
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.cardBackground,
@@ -128,61 +128,15 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.5,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.auto_awesome, color: AppColors.gold, size: 20),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'AI Suggestions',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text('BETA', style: TextStyle(fontSize: 9, color: AppColors.gold, fontWeight: FontWeight.w700)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  children: (suggestions[field] ?? []).map((s) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        if (field == 'title') _titleController.text = s;
-                        if (field == 'description') _descriptionController.text = s;
-                        if (field == 'hashtags') _hashtagController.text = s;
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.background,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Text(s, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
+      builder: (ctx) => _AiSuggestionsSheet(
+        field: field,
+        topic: _titleController.text.isNotEmpty ? _titleController.text : "social media",
+        currentText: field == 'description' ? _descriptionController.text : '',
+        onSelect: (s) {
+          if (field == 'title') _titleController.text = s;
+          if (field == 'description') _descriptionController.text = s;
+          if (field == 'hashtags') _hashtagController.text = s;
+        },
       ),
     );
   }
@@ -196,33 +150,43 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
       userId: auth.user?.id ?? 'local',
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
-      hashtags: _hashtagController.text
-          .split(' ')
-          .where((h) => h.startsWith('#'))
-          .toList(),
+      hashtags: _hashtagController.text.split(' ').where((h) => h.startsWith('#')).toList(),
       selectedPlatforms: List.from(_selectedPlatforms),
+      mediaIds: _mediaId != null ? [_mediaId!] : [],
       isDraft: false,
     );
 
-    posts.setPosting(true);
-    await Future.delayed(const Duration(milliseconds: 600));
-    await posts.addPost(post);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: const [
-              Icon(Icons.check_circle_rounded, color: AppColors.neonGreen, size: 18),
-              SizedBox(width: 8),
-              Text('🚀 Post published to all platforms!'),
-            ],
+    try {
+      await posts.addPost(post);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check_circle_rounded, color: AppColors.neonGreen, size: 18),
+                SizedBox(width: 8),
+                Text('🚀 Post published to all platforms!'),
+              ],
+            ),
+            backgroundColor: AppColors.cardBackground,
+            behavior: SnackBarBehavior.floating,
           ),
-          backgroundColor: AppColors.cardBackground,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      context.pop();
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: AppColors.error.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      posts.setPosting(false);
     }
   }
 
@@ -299,6 +263,7 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
       description: _descriptionController.text.trim(),
       hashtags: _hashtagController.text.split(' ').where((h) => h.startsWith('#')).toList(),
       selectedPlatforms: List.from(_selectedPlatforms),
+      mediaIds: _mediaId != null ? [_mediaId!] : [],
       isDraft: false,
     );
     await ref.read(postsProvider.notifier).saveDraft(post);
@@ -483,8 +448,17 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
               runSpacing: 6,
               children: AppConstants.platforms.map((p) {
                 final isSelected = _selectedPlatforms.contains(p.id);
+                final connectedAccounts = ref.watch(platformAccountsProvider);
+                final isConnected = connectedAccounts.any((acc) => acc.platformName == p.id);
+                
                 return GestureDetector(
                   onTap: () {
+                    if (!isConnected) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please connect ${p.name} in Settings first'))
+                      );
+                      return;
+                    }
                     setState(() {
                       if (isSelected) {
                         _selectedPlatforms.remove(p.id);
@@ -493,31 +467,34 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
                       }
                     });
                   },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isSelected ? p.color.withOpacity(0.15) : AppColors.cardBackground,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected ? p.color : AppColors.border,
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(p.icon, size: 14, color: isSelected ? p.color : AppColors.textTertiary),
-                        const SizedBox(width: 5),
-                        Text(
-                          p.name,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isSelected ? p.color : AppColors.textTertiary,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          ),
+                  child: Opacity(
+                    opacity: isConnected ? 1.0 : 0.4,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? p.color.withOpacity(0.15) : AppColors.cardBackground,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? p.color : AppColors.border,
+                          width: isSelected ? 1.5 : 1,
                         ),
-                      ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(p.icon, size: 14, color: isSelected ? p.color : AppColors.textTertiary),
+                          const SizedBox(width: 5),
+                          Text(
+                            p.name,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isSelected ? p.color : AppColors.textTertiary,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -537,7 +514,7 @@ class _PostCreatorPageState extends ConsumerState<PostCreatorPage> {
                     isPrimary: true,
                     isLoading: postsState.isPosting,
                     icon: Icons.send_rounded,
-                    onPressed: hasCooldown ? null : _postNow,
+                    onPressed: hasCooldown ? null : () => _postNow(),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -594,6 +571,123 @@ class _AiSuggestButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AiSuggestionsSheet extends StatefulWidget {
+  final String field;
+  final String topic;
+  final String currentText;
+  final Function(String) onSelect;
+
+  const _AiSuggestionsSheet({
+    required this.field,
+    required this.topic,
+    required this.currentText,
+    required this.onSelect,
+  });
+
+  @override
+  State<_AiSuggestionsSheet> createState() => _AiSuggestionsSheetState();
+}
+
+class _AiSuggestionsSheetState extends State<_AiSuggestionsSheet> {
+  List<String> _suggestions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSuggestions();
+  }
+
+  Future<void> _loadSuggestions() async {
+    final ai = AIService.instance;
+    List<String> res = [];
+    if (widget.field == 'title') {
+      res = await ai.suggestTitles(widget.topic);
+    } else if (widget.field == 'description') {
+      res = await ai.improveCaption(widget.currentText.isNotEmpty ? widget.currentText : "social media post");
+    } else if (widget.field == 'hashtags') {
+      res = await ai.suggestHashtags(widget.topic);
+    }
+    if (mounted) {
+      setState(() {
+        _suggestions = res;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.5,
+      builder: (context, scrollController) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: AppColors.gold, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'AI ${widget.field[0].toUpperCase()}${widget.field.substring(1)} Suggestions',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
+                const Spacer(),
+                if (_isLoading)
+                  const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.gold)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: Text('Consulting the Sage...', style: TextStyle(color: AppColors.textTertiary)))
+                  : ListView.builder(
+                      controller: scrollController,
+                      itemCount: _suggestions.length,
+                      itemBuilder: (context, index) {
+                        final s = _suggestions[index];
+                        return GestureDetector(
+                          onTap: () {
+                            widget.onSelect(s);
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Text(s, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AiSuggestButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AiSuggestButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.auto_awesome, color: AppColors.gold, size: 20),
+      onPressed: onTap,
+      tooltip: 'Get AI Suggestions',
     );
   }
 }
