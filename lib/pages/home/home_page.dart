@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,358 +38,444 @@ class HomePage extends ConsumerWidget {
     }
 
     return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── Header ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.transparent, // Let shell background show
+      body: Stack(
+        children: [
+          // Background Neon Glows
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.neonCyan.withOpacity(0.15),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            right: -50,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withOpacity(0.1),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+          // Main Content
+          SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                // ── Header ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Welcome back,',
-                          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$username 👋',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        _HeaderButton(
-                          icon: Icons.notifications_none_rounded,
-                          badge: 0,
-                          onTap: () {},
-                        ),
-                        const SizedBox(width: 8),
-                        _HeaderButton(
-                          icon: Icons.bar_chart_rounded,
-                          onTap: () => context.push('/analytics'),
-                        ),
-                        const SizedBox(width: 8),
-                        _HeaderButton(
-                          icon: Icons.photo_library_outlined,
-                          onTap: () => context.push('/library'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Quick Stats ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: Row(
-                  children: [
-                    _QuickStat(
-                      label: 'Posts Today',
-                      value: '$postsToday',
-                      icon: Icons.edit_note_rounded,
-                      color: AppColors.neonCyan,
-                    ),
-                    const SizedBox(width: 12),
-                    _QuickStat(
-                      label: 'Scheduled',
-                      value: '${scheduled.length}',
-                      icon: Icons.schedule_rounded,
-                      color: AppColors.gold,
-                    ),
-                    const SizedBox(width: 12),
-                    _QuickStat(
-                      label: 'Platforms',
-                      value: '${platforms.length}/13',
-                      icon: Icons.link_rounded,
-                      color: AppColors.neonGreen,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Platforms Section ──
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 28, 20, 12),
-                child: Text(
-                  'Your Platforms',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Platform Grid ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GlassCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 8,
-                    runSpacing: 16,
-                    children: AppConstants.platforms.map((platform) {
-                      return PlatformIcon(
-                        platform: platform,
-                        isConnected: platforms.any((acc) => acc.platformName == platform.id),
-                        onTap: () => context.go('/settings'),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Recent Posts ──
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 24, 20, 8),
-                child: Text(
-                  'Recent Posts',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Posts List or Empty State ──
-            if (posts.posts.isEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: GlassCard(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.post_add_rounded,
-                          size: 48,
-                          color: AppColors.textTertiary.withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'No posts yet',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Tap the + button to create your first post',
-                          style: TextStyle(fontSize: 13, color: AppColors.textTertiary),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: 160,
-                          child: ElevatedButton.icon(
-                            onPressed: () => context.push('/post-creator'),
-                            icon: const Icon(Icons.add, size: 18),
-                            label: const Text('Create Post'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            else
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final post = posts.posts[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: GlassCard(
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: AppColors.neonCyanSubtle,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(Icons.article_rounded,
-                                  size: 22, color: AppColors.neonCyan),
+                            const Text(
+                              'Welcome back,',
+                              style: TextStyle(fontSize: 14, color: AppColors.textSecondary, letterSpacing: 0.5),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    post.title.isEmpty ? 'Untitled Post' : post.title,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    post.description.isEmpty
-                                        ? 'No description'
-                                        : post.description,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatTime(post.createdAt),
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.textTertiary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (post.selectedPlatforms.isNotEmpty)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.neonCyanSubtle,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '${post.selectedPlatforms.length} platforms',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.neonCyan,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  childCount: posts.posts.length > 5 ? 5 : posts.posts.length,
-                ),
-              ),
-
-            // ── Drafts Section ──
-            if (posts.drafts.isNotEmpty) ...[
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
-                  child: Text(
-                    'Drafts',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final draft = posts.drafts[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: GlassCard(
-                        borderColor: AppColors.gold.withOpacity(0.3),
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: AppColors.gold.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(Icons.drafts_rounded,
-                                  size: 22, color: AppColors.gold),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    draft.title.isEmpty ? 'Untitled Draft' : draft.title,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    _formatTime(draft.createdAt),
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.textTertiary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: AppColors.gold.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text(
-                                'DRAFT',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: AppColors.gold,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                            const SizedBox(height: 4),
+                            ShaderMask(
+                              shaderCallback: (bounds) => AppColors.neonGradient.createShader(bounds),
+                              child: Text(
+                                '$username 👋',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                  childCount: posts.drafts.length > 3 ? 3 : posts.drafts.length,
+                        Row(
+                          children: [
+                            _HeaderButton(
+                              icon: Icons.notifications_none_rounded,
+                              badge: 0,
+                              onTap: () {},
+                            ),
+                            const SizedBox(width: 8),
+                            _HeaderButton(
+                              icon: Icons.bar_chart_rounded,
+                              onTap: () => context.push('/analytics'),
+                            ),
+                            const SizedBox(width: 8),
+                            _HeaderButton(
+                              icon: Icons.photo_library_outlined,
+                              onTap: () => context.push('/library'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
 
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
-        ),
+                // ── Quick Stats ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Row(
+                      children: [
+                        _QuickStat(
+                          label: 'Posts Today',
+                          value: '$postsToday',
+                          icon: Icons.edit_note_rounded,
+                          color: AppColors.neonCyan,
+                        ),
+                        const SizedBox(width: 12),
+                        _QuickStat(
+                          label: 'Scheduled',
+                          value: '${scheduled.length}',
+                          icon: Icons.schedule_rounded,
+                          color: AppColors.gold,
+                        ),
+                        const SizedBox(width: 12),
+                        _QuickStat(
+                          label: 'Platforms',
+                          value: '${platforms.length}/13',
+                          icon: Icons.link_rounded,
+                          color: AppColors.neonGreen,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Platforms Section ──
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20, 32, 20, 12),
+                    child: Text(
+                      'Your Platforms',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── Platform Grid ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: GlassCard(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                      borderColor: AppColors.neonCyan.withOpacity(0.2),
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 12,
+                        runSpacing: 20,
+                        children: AppConstants.platforms.map((platform) {
+                          return PlatformIcon(
+                            platform: platform,
+                            isConnected: platforms.any((acc) => acc.platformName == platform.id),
+                            onTap: () => context.go('/settings'),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── Recent Posts ──
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20, 32, 20, 8),
+                    child: Text(
+                      'Recent Posts',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── Posts List or Empty State ──
+                if (posts.posts.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GlassCard(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.neonCyan.withOpacity(0.1),
+                              ),
+                              child: Icon(
+                                Icons.post_add_rounded,
+                                size: 48,
+                                color: AppColors.neonCyan.withOpacity(0.8),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No posts yet',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Tap the + button to create your first post',
+                              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: 180,
+                              child: ElevatedButton.icon(
+                                onPressed: () => context.push('/post-creator'),
+                                icon: const Icon(Icons.add_rounded, size: 20),
+                                label: const Text('Create Post'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final post = posts.posts[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          child: GlassCard(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.neonCyan.withOpacity(0.2),
+                                        AppColors.neonCyan.withOpacity(0.05)
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: AppColors.neonCyan.withOpacity(0.3)),
+                                  ),
+                                  child: const Icon(Icons.article_rounded,
+                                      size: 24, color: AppColors.neonCyan),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        post.title.isEmpty ? 'Untitled Post' : post.title,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        post.description.isEmpty
+                                            ? 'No description'
+                                            : post.description,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.access_time_rounded, size: 12, color: AppColors.textTertiary),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _formatTime(post.createdAt),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.textTertiary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (post.selectedPlatforms.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.neonCyan.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.neonCyan.withOpacity(0.3)),
+                                    ),
+                                    child: Text(
+                                      '${post.selectedPlatforms.length} platforms',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: AppColors.neonCyan,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: posts.posts.length > 5 ? 5 : posts.posts.length,
+                    ),
+                  ),
+
+                // ── Drafts Section ──
+                if (posts.drafts.isNotEmpty) ...[
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, 24, 20, 8),
+                      child: Text(
+                        'Drafts',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final draft = posts.drafts[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          child: GlassCard(
+                            borderColor: AppColors.gold.withOpacity(0.3),
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.gold.withOpacity(0.2),
+                                        AppColors.gold.withOpacity(0.05)
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+                                  ),
+                                  child: const Icon(Icons.drafts_rounded,
+                                      size: 24, color: AppColors.gold),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        draft.title.isEmpty ? 'Untitled Draft' : draft.title,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.edit_note_rounded, size: 12, color: AppColors.textTertiary),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _formatTime(draft.createdAt),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.textTertiary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.gold.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+                                  ),
+                                  child: const Text(
+                                    'DRAFT',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.gold,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: posts.drafts.length > 3 ? 3 : posts.drafts.length,
+                    ),
+                  ),
+                ],
+
+                const SliverToBoxAdapter(child: SizedBox(height: 120)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

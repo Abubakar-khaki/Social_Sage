@@ -364,6 +364,13 @@ final scheduledPostsProvider =
     StateNotifierProvider<ScheduledNotifier, List<ScheduledPost>>((ref) => ScheduledNotifier());
 
 // ── Media Library ──────────────────────────────────────── //
+class MediaNotifier extends StateNotifier<List<MediaItem>> {
+  final DatabaseHelper _db = DatabaseHelper.instance;
+
+  MediaNotifier() : super([]) {
+    _load();
+  }
+
   Future<void> _load() async {
     final db = await _db.database;
     final List<Map<String, dynamic>> maps = await db.query('media', orderBy: 'created_at DESC');
@@ -371,7 +378,7 @@ final scheduledPostsProvider =
   }
 
   /// PICK & SAVE: Copies file from temporary picker path to permanent app storage
-  Future<MediaItem?> addFromPicker(String tempPath, String type) async {
+  Future<MediaItem?> addFromPicker(String tempPath, MediaType type) async {
     try {
       final appDir = await getApplicationDocumentsDirectory();
       final mediaDir = Directory('${appDir.path}/media');
@@ -400,6 +407,12 @@ final scheduledPostsProvider =
       print("Media Save Error: $e");
       return null;
     }
+  }
+
+  Future<void> add(MediaItem item) async {
+    final db = await _db.database;
+    await db.insert('media', item.toMap());
+    state = [item, ...state];
   }
 
   Future<void> remove(String id) async {
@@ -618,8 +631,8 @@ class InboxNotifier extends StateNotifier<List<CommentModel>> {
         }
       }
     }
-    // Sort by timestamp
-    allComments.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    // Sort by createdAt
+    allComments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     state = allComments;
   }
 }

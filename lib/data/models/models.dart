@@ -319,8 +319,10 @@ enum MediaType { photo, video, music }
 // ── Analytics Data ──
 class AnalyticsData {
   final String id;
-  final String publishedPostId;
+  final String? publishedPostId;
   final String accountId;
+  final String platform;
+  final DateTime date;
   int views;
   int likes;
   int comments;
@@ -329,8 +331,10 @@ class AnalyticsData {
 
   AnalyticsData({
     required this.id,
-    required this.publishedPostId,
+    this.publishedPostId,
     required this.accountId,
+    required this.platform,
+    required this.date,
     this.views = 0,
     this.likes = 0,
     this.comments = 0,
@@ -343,6 +347,8 @@ class AnalyticsData {
       'id': id,
       'published_post_id': publishedPostId,
       'account_id': accountId,
+      'platform': platform,
+      'date': date.toIso8601String(),
       'views': views,
       'likes': likes,
       'comments': comments,
@@ -356,6 +362,8 @@ class AnalyticsData {
       id: map['id'],
       publishedPostId: map['published_post_id'],
       accountId: map['account_id'],
+      platform: map['platform'] ?? 'unknown',
+      date: DateTime.parse(map['date'] ?? DateTime.now().toIso8601String()),
       views: map['views'],
       likes: map['likes'],
       comments: map['comments'],
@@ -373,6 +381,7 @@ class CommentModel {
   final String platformName;
   final String commenterName;
   final String commentText;
+  final String? commenterAvatarUrl;
   DateTime createdAt;
 
   CommentModel({
@@ -382,6 +391,7 @@ class CommentModel {
     required this.platformName,
     required this.commenterName,
     required this.commentText,
+    this.commenterAvatarUrl,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -393,6 +403,7 @@ class CommentModel {
       'platform_name': platformName,
       'commenter_name': commenterName,
       'comment_text': commentText,
+      'commenter_avatar_url': commenterAvatarUrl,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -405,6 +416,7 @@ class CommentModel {
       platformName: map['platform_name'],
       commenterName: map['commenter_name'],
       commentText: map['comment_text'],
+      commenterAvatarUrl: map['commenter_avatar_url'],
       createdAt: DateTime.parse(map['created_at']),
     );
   }

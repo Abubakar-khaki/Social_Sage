@@ -32,12 +32,13 @@ class FacebookClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'fb_c1',
-        postId: 'p1',
-        userName: 'John Doe',
-        avatarUrl: 'https://i.pravatar.cc/150?u=fb1',
-        content: 'Love this update! 🚀',
-        platform: 'facebook',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        publishedPostId: 'p1',
+        accountId: accountId,
+        commenterName: 'John Doe',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=fb1',
+        commentText: 'Love this update! 🚀',
+        platformName: 'facebook',
+        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
       ),
     ];
   }
@@ -47,6 +48,8 @@ class FacebookClient extends BaseSocialClient {
     // Simulated fetch from /me/insights
     await Future.delayed(const Duration(milliseconds: 400));
     return AnalyticsData(
+      id: 'fb_a1',
+      accountId: accountId,
       likes: 1240,
       shares: 450,
       comments: 89,

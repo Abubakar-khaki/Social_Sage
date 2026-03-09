@@ -1,0 +1,38 @@
+﻿Analyzing profile_page.dart...
+
+  error - profile_page.dart:30:34 - The getter 'accentNeonCyan' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentNeonCyan', correcting the name to the name of an existing getter, or defining a getter or field named 'accentNeonCyan'. - undefined_getter
+  error - profile_page.dart:33:38 - The getter 'accentNeonCyan' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentNeonCyan', correcting the name to the name of an existing getter, or defining a getter or field named 'accentNeonCyan'. - undefined_getter
+  error - profile_page.dart:49:34 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:52:38 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:92:50 - The getter 'primary' isn't defined for the type 'AppColors'. Try importing the library that defines 'primary', correcting the name to the name of an existing getter, or defining a getter or field named 'primary'. - undefined_getter
+  error - profile_page.dart:93:69 - The getter 'accentNeonCyan' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentNeonCyan', correcting the name to the name of an existing getter, or defining a getter or field named 'accentNeonCyan'. - undefined_getter
+  error - profile_page.dart:122:56 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:124:75 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:129:78 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:129:88 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:134:52 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:134:62 - The getter 'accentGold' isn't defined for the type 'AppColors'. Try importing the library that defines 'accentGold', correcting the name to the name of an existing getter, or defining a getter or field named 'accentGold'. - undefined_getter
+  error - profile_page.dart:149:60 - The getter 'primary' isn't defined for the type 'AppColors'. Try importing the library that defines 'primary', correcting the name to the name of an existing getter, or defining a getter or field named 'primary'. - undefined_getter
+  error - profile_page.dart:214:36 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:214:46 - The getter 'divider' isn't defined for the type 'AppColors'. Try importing the library that defines 'divider', correcting the name to the name of an existing getter, or defining a getter or field named 'divider'. - undefined_getter
+  error - profile_page.dart:222:36 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:222:46 - The getter 'divider' isn't defined for the type 'AppColors'. Try importing the library that defines 'divider', correcting the name to the name of an existing getter, or defining a getter or field named 'divider'. - undefined_getter
+  error - profile_page.dart:229:36 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:229:46 - The getter 'divider' isn't defined for the type 'AppColors'. Try importing the library that defines 'divider', correcting the name to the name of an existing getter, or defining a getter or field named 'divider'. - undefined_getter
+  error - profile_page.dart:317:42 - The getter 'primary' isn't defined for the type 'AppColors'. Try importing the library that defines 'primary', correcting the name to the name of an existing getter, or defining a getter or field named 'primary'. - undefined_getter
+  error - profile_page.dart:371:36 - Invalid constant value. - invalid_constant
+  error - profile_page.dart:371:46 - The getter 'divider' isn't defined for the type 'AppColors'. Try importing the library that defines 'divider', correcting the name to the name of an existing getter, or defining a getter or field named 'divider'. - undefined_getter
+warning - profile_page.dart:6:8 - Unused import: '../../data/models/models.dart'. Try removing the import directive. - unused_import
+   info - profile_page.dart:7:8 - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive. - unnecessary_import
+   info - profile_page.dart:207:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - profile_page.dart:215:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - profile_page.dart:223:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - profile_page.dart:230:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - profile_page.dart:266:26 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - profile_page.dart:268:45 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - profile_page.dart:300:35 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - profile_page.dart:302:54 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - profile_page.dart:410:17 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - profile_page.dart:413:32 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+
+34 issues found.

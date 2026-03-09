@@ -35,6 +35,8 @@ class WeChatClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 900));
     return AnalyticsData(
+      id: 'wc_a1',
+      accountId: accountId,
       likes: 890,
       shares: 230,
       comments: 0,

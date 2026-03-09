@@ -32,12 +32,13 @@ class DiscordClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'ds_c1',
-        postId: 'p8',
-        userName: 'GamerGuy',
-        avatarUrl: 'https://i.pravatar.cc/150?u=ds1',
-        content: '@everyone Check this out!',
-        platform: 'discord',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+        publishedPostId: 'p8',
+        accountId: accountId,
+        commenterName: 'GamerGuy',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=ds1',
+        commentText: '@everyone Check this out!',
+        platformName: 'discord',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
       ),
     ];
   }
@@ -46,6 +47,8 @@ class DiscordClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 200));
     return AnalyticsData(
+      id: 'ds_a1',
+      accountId: accountId,
       likes: 0,
       shares: 0,
       comments: 12,

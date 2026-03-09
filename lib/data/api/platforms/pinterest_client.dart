@@ -39,6 +39,8 @@ class PinterestClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return AnalyticsData(
+      id: 'pin_a1',
+      accountId: accountId,
       likes: 450,
       shares: 890, // Saves/Pins
       comments: 0,

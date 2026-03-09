@@ -26,8 +26,11 @@ class InstagramClient extends BaseSocialClient {
       
       if (containerResponse.statusCode == 200) {
         // ... Logic to extract container_id and call /media_publish
-       final response = await post(accountId, "/$containerId/publish", {});
-      return response.statusCode == 200;
+        final containerId = "CONTAINER_ID_FROM_RESPONSE";
+        final publishResponse = await post(accountId, "/$containerId/publish", {});
+        return publishResponse.statusCode == 200;
+      }
+      return false;
     } catch (e) {
       print("Instagram Post Error: $e");
       return false;
@@ -40,12 +43,12 @@ class InstagramClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'ig_c1',
-        postId: 'p4',
-        userName: 'AestheticVibes',
-        avatarUrl: 'https://i.pravatar.cc/150?u=ig1',
-        content: 'Stunning capture! 😍',
-        platform: 'instagram',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        publishedPostId: 'p4',
+        accountId: accountId,
+        platformName: 'instagram',
+        commenterName: 'AestheticVibes',
+        commentText: 'Stunning capture! 😍',
+        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
       ),
     ];
   }
@@ -54,12 +57,15 @@ class InstagramClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 450));
     return AnalyticsData(
+      id: 'ig_a1',
+      publishedPostId: 'p4',
+      accountId: accountId,
+      platform: 'instagram',
+      date: DateTime.now(),
       likes: 4200,
       shares: 320,
       comments: 156,
       views: 18000,
-      platform: 'instagram',
-      date: DateTime.now(),
     );
   }
 }

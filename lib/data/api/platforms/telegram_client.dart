@@ -35,6 +35,8 @@ class TelegramClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 200));
     return AnalyticsData(
+      id: 'tg_a1',
+      accountId: accountId,
       likes: 0,
       shares: 120,
       comments: 0,

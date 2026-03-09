@@ -678,16 +678,3 @@ class _AiSuggestionsSheetState extends State<_AiSuggestionsSheet> {
   }
 }
 
-class _AiSuggestButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _AiSuggestButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.auto_awesome, color: AppColors.gold, size: 20),
-      onPressed: onTap,
-      tooltip: 'Get AI Suggestions',
-    );
-  }
-}

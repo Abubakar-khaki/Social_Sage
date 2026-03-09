@@ -37,6 +37,8 @@ class WhatsAppClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 250));
     return AnalyticsData(
+      id: 'wa_a1',
+      accountId: accountId,
       likes: 0,
       shares: 0,
       comments: 0,

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/shared_widgets.dart';
 import '../../providers/app_providers.dart';
@@ -20,41 +22,75 @@ class AnalyticsPage extends ConsumerWidget {
     
     final maxViews = analytics.isEmpty ? 1 : analytics.map((e) => e.views).reduce((a, b) => a > b ? a : b);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Analytics'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.neonCyan),
-            onPressed: () => ref.read(analyticsProvider.notifier).refresh(),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text('Last 7 Days', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                SizedBox(width: 4),
-                Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textTertiary),
-              ],
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -80,
+            right: -80,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.neonCyan.withValues(alpha: 0.1),
+              ),
             ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
+          Positioned(
+            bottom: -40,
+            left: -40,
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.neonPink.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text(
+                  'Analytics',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh_rounded, color: AppColors.neonCyan),
+                  onPressed: () => ref.read(analyticsProvider.notifier).refresh(),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBackground,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Last 7 Days', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      SizedBox(width: 4),
+                      Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textTertiary),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             // ── Summary Cards ──
             Row(
               children: [
@@ -91,7 +127,7 @@ class AnalyticsPage extends ConsumerWidget {
 
             // ── Best Time to Post ──
             GlassCard(
-              borderColor: AppColors.neonCyan.withOpacity(0.3),
+              borderColor: AppColors.neonCyan.withValues(alpha: 0.3),
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
@@ -99,7 +135,7 @@ class AnalyticsPage extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.neonCyan.withOpacity(0.1),
+                      color: AppColors.neonCyan.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.access_time_rounded, color: AppColors.neonCyan, size: 24),
@@ -108,7 +144,7 @@ class AnalyticsPage extends ConsumerWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Best Time to Post',
                           style: TextStyle(
@@ -190,7 +226,7 @@ class AnalyticsPage extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.1),
+                      color: AppColors.gold.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.emoji_events_rounded, color: AppColors.gold, size: 24),
@@ -199,7 +235,7 @@ class AnalyticsPage extends ConsumerWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           '"Starting my journey..."',
                           style: TextStyle(
@@ -224,6 +260,9 @@ class AnalyticsPage extends ConsumerWidget {
             const SizedBox(height: 40),
           ],
         ),
+      ),
+          ),
+        ],
       ),
     );
   }
@@ -271,7 +310,7 @@ class _StatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
-                color: (isPositive ? AppColors.success : AppColors.error).withOpacity(0.1),
+                color: (isPositive ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -319,7 +358,7 @@ class _PlatformBreakdownItem extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.12),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 18, color: color),
@@ -385,14 +424,14 @@ class _ChartBar extends StatelessWidget {
           width: 28,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [color, color.withOpacity(0.4)],
+              colors: [color, color.withValues(alpha: 0.4)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
             borderRadius: BorderRadius.circular(6),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),

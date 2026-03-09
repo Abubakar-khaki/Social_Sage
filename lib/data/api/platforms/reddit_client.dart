@@ -34,12 +34,13 @@ class RedditClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'rd_c1',
-        postId: 'p7',
-        userName: 'RedditUser42',
-        avatarUrl: 'https://i.pravatar.cc/150?u=rd1',
-        content: 'Upvoted! Great points.',
-        platform: 'reddit',
-        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+        publishedPostId: 'p7',
+        accountId: accountId,
+        commenterName: 'RedditUser42',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=rd1',
+        commentText: 'Upvoted! Great points.',
+        platformName: 'reddit',
+        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
       ),
     ];
   }
@@ -48,6 +49,8 @@ class RedditClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 550));
     return AnalyticsData(
+      id: 'rd_a1',
+      accountId: accountId,
       likes: 1200, // Upvotes
       shares: 89,
       comments: 24,

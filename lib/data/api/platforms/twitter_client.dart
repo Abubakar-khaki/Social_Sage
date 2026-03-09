@@ -30,12 +30,13 @@ class TwitterClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'tw_c1',
-        postId: 'p3',
-        userName: 'TechGuru',
-        avatarUrl: 'https://i.pravatar.cc/150?u=tw1',
-        content: 'RT if you agree! 💯',
-        platform: 'twitter',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+        publishedPostId: 'p3',
+        accountId: accountId,
+        commenterName: 'TechGuru',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=tw1',
+        commentText: 'RT if you agree! 💯',
+        platformName: 'twitter',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
       ),
     ];
   }
@@ -44,6 +45,8 @@ class TwitterClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return AnalyticsData(
+      id: 'tw_a1',
+      accountId: accountId,
       likes: 2500,
       shares: 1100,
       comments: 230,

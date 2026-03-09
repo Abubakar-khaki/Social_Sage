@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+export '../models/models.dart';
 import '../services/secure_storage_service.dart';
 
 abstract class BaseSocialClient {

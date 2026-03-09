@@ -34,12 +34,13 @@ class TikTokClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'tt_c1',
-        postId: 'p5',
-        userName: 'DanceKing',
-        avatarUrl: 'https://i.pravatar.cc/150?u=tt1',
-        content: 'This is going viral for sure! 🔥',
-        platform: 'tiktok',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
+        publishedPostId: 'p5',
+        accountId: accountId,
+        commenterName: 'DanceKing',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=tt1',
+        commentText: 'This is going viral for sure! 🔥',
+        platformName: 'tiktok',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
       ),
     ];
   }
@@ -48,6 +49,8 @@ class TikTokClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 600));
     return AnalyticsData(
+      id: 'tt_a1',
+      accountId: accountId,
       likes: 15000,
       shares: 4500,
       comments: 890,

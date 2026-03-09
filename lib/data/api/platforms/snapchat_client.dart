@@ -34,6 +34,8 @@ class SnapchatClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 350));
     return AnalyticsData(
+      id: 'snap_a1',
+      accountId: accountId,
       likes: 0,
       shares: 45,
       comments: 0,

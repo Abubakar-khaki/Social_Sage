@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/shared_widgets.dart';
 import '../../providers/app_providers.dart';

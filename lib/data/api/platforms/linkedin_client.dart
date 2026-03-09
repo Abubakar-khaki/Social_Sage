@@ -42,12 +42,13 @@ class LinkedInClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'li_c1',
-        postId: 'p2',
-        userName: 'Sarah Jenkins',
-        avatarUrl: 'https://i.pravatar.cc/150?u=li1',
-        content: 'Very insightful share, thanks!',
-        platform: 'linkedin',
-        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+        publishedPostId: 'p2',
+        accountId: accountId,
+        commenterName: 'Sarah Jenkins',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=li1',
+        commentText: 'Very insightful share, thanks!',
+        platformName: 'linkedin',
+        createdAt: DateTime.now().subtract(const Duration(hours: 5)),
       ),
     ];
   }
@@ -56,6 +57,8 @@ class LinkedInClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 500));
     return AnalyticsData(
+      id: 'li_a1',
+      accountId: accountId,
       likes: 850,
       shares: 120,
       comments: 45,

@@ -38,12 +38,13 @@ class YouTubeClient extends BaseSocialClient {
     return [
       CommentModel(
         id: 'yt_c1',
-        postId: 'p6',
-        userName: 'Subscriber #1',
-        avatarUrl: 'https://i.pravatar.cc/150?u=yt1',
-        content: 'First! Great video as always.',
-        platform: 'youtube',
-        timestamp: DateTime.now().subtract(const Duration(hours: 12)),
+        publishedPostId: 'p6',
+        accountId: accountId,
+        commenterName: 'Subscriber #1',
+        commenterAvatarUrl: 'https://i.pravatar.cc/150?u=yt1',
+        commentText: 'First! Great video as always.',
+        platformName: 'youtube',
+        createdAt: DateTime.now().subtract(const Duration(hours: 12)),
       ),
     ];
   }
@@ -52,6 +53,8 @@ class YouTubeClient extends BaseSocialClient {
   Future<AnalyticsData> fetchMetrics(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 700));
     return AnalyticsData(
+      id: 'yt_a1',
+      accountId: accountId,
       likes: 3400,
       shares: 890,
       comments: 450,
