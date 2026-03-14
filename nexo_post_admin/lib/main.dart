@@ -5,6 +5,8 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/admin_layout.dart';
 import 'features/dashboard/screens/admin_dashboard_screen.dart';
 import 'features/users/screens/user_management_screen.dart';
+import 'features/dashboard/screens/system_logs_screen.dart';
+import 'features/dashboard/screens/subscription_management_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: AdminApp()));
@@ -31,15 +33,11 @@ final _router = GoRouter(
         ),
         GoRoute(
           path: '/logs',
-          builder: (context, state) => const Scaffold(
-            body: Center(child: Text('Post Logs Coming Soon')),
-          ),
+          builder: (context, state) => const SystemLogsScreen(),
         ),
         GoRoute(
           path: '/settings',
-          builder: (context, state) => const Scaffold(
-            body: Center(child: Text('Settings Coming Soon')),
-          ),
+          builder: (context, state) => const SubscriptionManagementScreen(),
         ),
       ],
     ),
