@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../shared/providers/admin_providers.dart';
+import '../../../core/services/admin_api_service.dart';
 
-class SystemLogsScreen extends StatefulWidget {
+class SystemLogsScreen extends ConsumerStatefulWidget {
   const SystemLogsScreen({super.key});
 
   @override
-  State<SystemLogsScreen> createState() => _SystemLogsScreenState();
+  ConsumerState<SystemLogsScreen> createState() => _SystemLogsScreenState();
 }
 
-class _SystemLogsScreenState extends State<SystemLogsScreen> {
-  final List<_QueueJob> _jobs = [
-    _QueueJob('JOB-882', 'Alex Creator', 'Facebook', 'Processing', '2 mins ago'),
-    _QueueJob('JOB-881', 'Sarah Smith', 'Instagram', 'Completed', '5 mins ago'),
-    _QueueJob('JOB-880', 'John Doe', 'YouTube', 'Failed', '12 mins ago', error: 'API Timeout'),
-    _QueueJob('JOB-879', 'Crypto Guru', 'TikTok', 'Completed', '1 hour ago'),
-    _QueueJob('JOB-878', 'Jane Miller', 'WhatsApp', 'Failed', '2 hours ago', error: 'Invalid Session'),
-  ];
-
+class _SystemLogsScreenState extends ConsumerState<SystemLogsScreen> {
   @override
   Widget build(BuildContext context) {
+    final jobsAsync = ref.watch(adminQueueJobsProvider);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -29,6 +26,12 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             children: [
               Text('Queue & System Health', style: Theme.of(context).textTheme.displayMedium),
               const Spacer(),
+              OutlinedButton.icon(
+                onPressed: () => ref.refresh(adminQueueJobsProvider),
+                icon: const Icon(LucideIcons.refreshCw, size: 16),
+                label: const Text('Refresh'),
+              ),
+              const SizedBox(width: 12),
               OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(LucideIcons.refreshCw, size: 16),
@@ -93,12 +96,19 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           // Jobs Table
           Expanded(
             child: Card(
-              child: ListView(
-                children: [
-                  _buildTableHeader(),
-                  const Divider(height: 1),
-                  ..._jobs.map((job) => _buildJobRow(job)),
-                ],
+              child: jobsAsync.when(
+                data: (jobs) => ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: ListView(
+                    children: [
+                      _buildTableHeader(),
+                      const Divider(height: 1),
+                      ...jobs.map((job) => _buildJobRow(job)),
+                    ],
+                  ),
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ),
@@ -169,7 +179,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
     );
   }
 
-  Widget _buildJobRow(_QueueJob job) {
+  Widget _buildJobRow(QueueJob job) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const BoxDecoration(
@@ -238,7 +248,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
     );
   }
 
-  void _showJobDetails(_QueueJob job) {
+  void _showJobDetails(QueueJob job) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -285,15 +295,4 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       ),
     );
   }
-}
-
-class _QueueJob {
-  final String id;
-  final String user;
-  final String platform;
-  final String status;
-  final String time;
-  final String? error;
-
-  _QueueJob(this.id, this.user, this.platform, this.status, this.time, {this.error});
 }

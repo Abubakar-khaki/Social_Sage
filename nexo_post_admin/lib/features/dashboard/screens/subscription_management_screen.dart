@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../shared/providers/admin_providers.dart';
+import '../../../core/services/admin_api_service.dart';
 
-class SubscriptionManagementScreen extends StatelessWidget {
+class SubscriptionManagementScreen extends ConsumerWidget {
   const SubscriptionManagementScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plansAsync = ref.watch(adminPlansProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -16,16 +21,19 @@ class SubscriptionManagementScreen extends StatelessWidget {
           const SizedBox(height: 32),
 
           // Active Tiers Grid
-          Row(
-            children: [
-              _buildPlanCard(context, 'GEN Z', '0', '30 Credits/Mo', LucideIcons.user),
-              const SizedBox(width: 16),
-              _buildPlanCard(context, 'SILVER', '19', '200 Credits/Mo', LucideIcons.award, color: Colors.blueGrey),
-              const SizedBox(width: 16),
-              _buildPlanCard(context, 'OIL', '49', '600 Credits/Mo', LucideIcons.flame, color: AppColors.warning),
-              const SizedBox(width: 16),
-              _buildPlanCard(context, 'GOLD', '99', 'Unlimited', LucideIcons.star, color: Colors.amber),
-            ],
+          plansAsync.when(
+            data: (plans) => Row(
+              children: plans.map((plan) => _buildPlanCard(
+                context, 
+                plan.name, 
+                plan.price, 
+                plan.limit, 
+                _getIcon(plan.icon),
+                color: _getColor(plan.name),
+              )).toList(),
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text('Error: $err')),
           ),
 
           const SizedBox(height: 32),
@@ -70,26 +78,43 @@ class SubscriptionManagementScreen extends StatelessWidget {
     );
   }
 
+  IconData _getIcon(String icon) {
+    if (icon == 'award') return LucideIcons.award;
+    if (icon == 'flame') return LucideIcons.flame;
+    if (icon == 'star') return LucideIcons.star;
+    return LucideIcons.user;
+  }
+
+  Color _getColor(String name) {
+    if (name == 'SILVER') return Colors.blueGrey;
+    if (name == 'OIL') return AppColors.warning;
+    if (name == 'GOLD') return Colors.amber;
+    return AppColors.primaryAccent;
+  }
+
   Widget _buildPlanCard(BuildContext context, String name, String price, String limit, IconData icon, {Color color = AppColors.primaryAccent}) {
     return Expanded(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 16),
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(height: 8),
-              Text('\$$price/mo', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-              const SizedBox(height: 8),
-              Text(limit, style: const TextStyle(color: AppColors.textDisabled, fontSize: 13)),
-              const SizedBox(height: 24),
-              OutlinedButton(
-                onPressed: () {},
-                child: const Text('Edit Limits'),
-              ),
-            ],
+      child: Container(
+        margin: const EdgeInsets.only(right: 16),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 32),
+                const SizedBox(height: 16),
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('\$$price/mo', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                const SizedBox(height: 8),
+                Text(limit, style: const TextStyle(color: AppColors.textDisabled, fontSize: 13)),
+                const SizedBox(height: 24),
+                OutlinedButton(
+                  onPressed: () {},
+                  child: const Text('Edit Limits'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../shared/providers/admin_providers.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final metricsAsync = ref.watch(systemMetricsProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -25,49 +29,52 @@ class AdminDashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           
-          // Stats Row
-          Row(
-            children: [
-              Expanded(
-                child: _StatCard(
-                  title: 'Total Users',
-                  value: '12,842',
-                  trend: '+12%',
-                  icon: LucideIcons.users,
-                  color: AppColors.primaryAccent,
+          metricsAsync.when(
+            data: (metrics) => Row(
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    title: 'Total Users',
+                    value: metrics['totalUsers'] ?? '0',
+                    trend: '+12%',
+                    icon: LucideIcons.users,
+                    color: AppColors.primaryAccent,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _StatCard(
-                  title: 'Daily Posts',
-                  value: '3,421',
-                  trend: '+5%',
-                  icon: LucideIcons.send,
-                  color: AppColors.secondaryAccent,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Daily Posts',
+                    value: metrics['dailyPosts'] ?? '0',
+                    trend: '+5%',
+                    icon: LucideIcons.send,
+                    color: AppColors.secondaryAccent,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _StatCard(
-                  title: 'Credits Spent',
-                  value: '84,200',
-                  trend: '+18%',
-                  icon: LucideIcons.coins,
-                  color: AppColors.warning,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Revenue',
+                    value: metrics['revenue'] ?? '\$0',
+                    trend: '+18%',
+                    icon: LucideIcons.coins,
+                    color: AppColors.warning,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _StatCard(
-                  title: 'Success Rate',
-                  value: '99.4%',
-                  trend: '+0.2%',
-                  icon: LucideIcons.checkCircle,
-                  color: AppColors.success,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Success Rate',
+                    value: metrics['errorRate'] ?? '0%',
+                    trend: '+0.2%',
+                    icon: LucideIcons.checkCircle,
+                    color: AppColors.success,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text('Error: $err')),
           ),
           
           const SizedBox(height: 32),
@@ -92,7 +99,7 @@ class AdminDashboardScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text('Activity Graph Mockup', style: TextStyle(color: AppColors.textDisabled)),
                     ),
                   ),
@@ -102,9 +109,9 @@ class AdminDashboardScreen extends StatelessWidget {
               Expanded(
                 child: _ChartContainer(
                   title: 'Platform Distribution',
-                  child: Container(
+                  child: SizedBox(
                     height: 300,
-                    child: Center(
+                    child: const Center(
                       child: Text('Pie Chart Mockup', style: TextStyle(color: AppColors.textDisabled)),
                     ),
                   ),
